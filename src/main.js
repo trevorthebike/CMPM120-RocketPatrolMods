@@ -1,7 +1,17 @@
 let config = {
     type: Phaser.CANVAS,
-    width: 640,
-    height: 480,
+    zoom: 1, 
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 640,
+        height: 480
+    },
+    //width: 640,
+    //height: 480,
+    physics: {
+        default: 'arcade',
+    },
     scene: [ Menu, Play ]
 }
 
@@ -11,15 +21,7 @@ let borderPadding = borderUISize / 3;
 console.log(borderUISize);
 console.log(borderPadding);
 let keyF, keyR, keyLEFT, keyRIGHT, keyDOWN, keyUP;
-/*let num_enemies = 10;
-
-function createEnemy(player,myworldlayer){
-    enemys = this.add.group({
-      defaultKey: 'enemy',
-      maxSize: num_enemies
-    })
-    for (i = 0; i < num_enemies; i++){
-        let x = (i+1)*50;
-        enemy = enemys.get(x,700);
-    }
-}*/
+let enemys;
+let enemy;
+let spaceship;
+let num_enemies = 5;

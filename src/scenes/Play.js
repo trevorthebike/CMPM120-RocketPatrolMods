@@ -17,9 +17,19 @@ class Play extends Phaser.Scene{
         this.add.rectangle(0, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0 ,0);
         this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0 ,0);
         this.p1Rocket = new Rocket(this, borderUISize, 240 , 'rocket').setOrigin(0.5, 0);
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*Math.random(0,6), borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0);
-        this.ship02 = new Spaceship(this, game.config.width + borderUISize*Math.random(0,3), borderUISize*5 + borderPadding*2, 'spaceship', 0, 20).setOrigin(0,0);
-        this.ship03 = new Spaceship(this, game.config.width, borderUISize*Math.random(0,6) + borderPadding*4, 'spaceship', 0, 10).setOrigin(0,0);
+        let spaceshipsGroup = this.add.group({
+            classType: Spaceship,
+            runChildUpdate: true
+        });
+        for(let i = 0; i < num_enemies; i++){
+        let spaceship = spaceshipsGroup.get(this, game.config.width + borderUISize*Math.random(0,6), borderUISize*4, 'spaceship', 0, 30);
+            spaceship.setActive(true);
+            spaceship.setVisible(true);
+            spaceship.reset();
+        
+        this.physics.add.collider(spaceship, Rocket);
+        this.physics.add.overlap(spaceship, Rocket, this.shipExplode, null, this);
+        }
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -35,7 +45,7 @@ class Play extends Phaser.Scene{
             }),
             frameRate: 30
         });
-        //createEnemy.call(this);
+       // createEnemy.call(this);
         this.p1Score = 0;
         let scoreConfig = {
             fontFamily: 'Courier',
@@ -52,12 +62,25 @@ class Play extends Phaser.Scene{
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig);
         this.gameOver = false;
         scoreConfig.fixedWidth = 0;
-        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← to Menu', scoreConfig).setOrigin(0.5);
-            this.gameOver = true;
-        }, null, this);
+
+        this.initialTime = 60;
+        this.text = this.add.text(game.config.width-borderUISize*6, borderUISize + borderPadding*2, 'Timer: ' + this.initialTime, scoreConfig);
+        this.timedEvent = this.time.addEvent({ delay: 1000, callback: onEvent, callbackScope: this, loop: true });
+        
+        function onEvent (){
+            if(this.initialTime == 0){
+                this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
+                this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← to Menu', scoreConfig).setOrigin(0.5);
+                this.gameOver = true;
+            }
+            else{
+                this.initialTime -= 1;
+                this.text.setText('Timer: ' + (this.initialTime));
+            }
+        }
     }
+
+    
 
     update(){
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
@@ -70,32 +93,15 @@ class Play extends Phaser.Scene{
 
         if(!this.gameOver) {
             this.p1Rocket.update();
-            this.ship01.update();            
-            this.ship02.update();
-            this.ship03.update();
+            //this.spaceship.update();
+            //this.ship01.update();            
+            //this.ship02.update();
+            //this.ship03.update();
         }
-        if(this.checkCollision(this.p1Rocket, this.ship03)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship03);
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship02)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship02);
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship01)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship01);
-        }
-    }
-    checkCollision(rocket, ship) {
-        if (rocket.x < ship.x + ship.width && 
-            rocket.x + rocket.width > ship.x && 
-            rocket.y < ship.y + ship.height &&
-            rocket.height + rocket.y > ship. y) {
-                return true;
-        } else {
-            return false;
-        }
+        //if(this.checkCollision(this.p1Rocket, this.ship03)) {
+        //    this.p1Rocket.reset();
+        //    this.shipExplode(this.ship03);
+        //}
     }
 
     shipExplode(ship) {
