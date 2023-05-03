@@ -70,6 +70,7 @@ class Play extends Phaser.Scene{
         this.timedEvent = this.time.addEvent({ delay: 1000, callback: onEvent, callbackScope: this, loop: true });
         function onEvent (){
             if(this.initialTime == 0){
+                
                 this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
                 this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← to Menu', scoreConfig).setOrigin(0.5);
                 this.gameOver = true;
