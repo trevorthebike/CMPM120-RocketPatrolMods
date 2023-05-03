@@ -1,39 +1,37 @@
 // Rocket prefab
 class Rocket extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture, frame) {
-        super(scene, x, y, texture, frame);
-        scene.add.existing(this);   
+        super(scene, x, y, frame);
+        texture = 'rocket';
+        // Add physics properties
+        scene.physics.add.existing(this);  
+        this.body.setCollideWorldBounds(true);
+        this.body.onWorldBounds = true;
         this.isFiring = false;      
-        this.moveSpeed = 10;        
-        this.sfxRocket = scene.sound.add('sfx_rocket')  
+        this.moveSpeed = 500;        
     }
+
     update() {
-        if(!this.isFiring) {
-            if(keyUP.isDown && this.y >= borderUISize + this.width) {
-                this.y -= this.moveSpeed;
-            } else if (keyDOWN.isDown && this.y <= borderUISize*13.5) {
-                this.y += this.moveSpeed;
+            if(keyUP.isDown) {
+                this.body.setVelocityY(-this.moveSpeed);
+            } else if (keyDOWN.isDown) {
+                this.body.setVelocityY(this.moveSpeed);
+            } else {
+                this.body.setVelocityY(0);
             }
-            if(keyLEFT.isDown && this.x >= borderUISize + this.width) {
-                this.x -= this.moveSpeed;
-            } else if (keyRIGHT.isDown && this.x <= game.config.width - borderUISize - this.width) {
-                this.x += this.moveSpeed;
+            if(keyLEFT.isDown) {
+                this.body.setVelocityX(-this.moveSpeed);
+            } else if (keyRIGHT.isDown) {
+                this.body.setVelocityX(this.moveSpeed);
+            } else {
+                this.body.setVelocityX(0);
             }
-        }
-        if(Phaser.Input.Keyboard.JustDown(keyF) && !this.isFiring) {
-            this.isFiring = true; 
-            this.sfxRocket.play();
-        }
-        if(this.isFiring && this.y >= borderUISize * 3 + borderPadding) {
-            this.x += this.moveSpeed;
-        }
-       /// if(this.x > game.config.width) {
-       //    this.reset();
-       // }
     }
+
     reset() {
         this.isFiring = false;
-        this.y = 240;
-        this.x = borderUISize + borderPadding;
+        this.body.setVelocity(0);
+        this.y = borderPadding;
+        this.x = Math.random()*game.config.width;
     }
 }
